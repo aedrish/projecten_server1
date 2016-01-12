@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<script type="text/javascript" src="bower_component/deepstream.io-client-js/dist/deepstream.js">
+</script>
+</head>
+<body>
+	<input type="text" />
+	<script type="text/javascript">
+		ds = deepstream('localhost:8887').login();
+	record = ds.record.getRecord('someUser');
+	input = document.querySelector('input');
+	input.onkeyup = function() {
+		record.set('firstname', input.value);
+	};
+	record.subscribe('firstname', function(value) {
+	input.value = value;
+};
+	</script>
+</body>
+</html>
+

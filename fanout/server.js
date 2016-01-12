@@ -1,0 +1,72 @@
+var express = require('express');
+var bodyParser = require('body-parser');
+var grip = require('grip');
+var expressGrip = require('express-grip');
+ 
+expressGrip.configure({
+    gripProxies: [
+        // pushpin config
+        {
+            'control_uri': 'http://localhost:5561'
+        }
+    ]
+});
+ 
+var app = express();
+ 
+// Add the pre-handler middleware to the front of the stack
+app.use(expressGrip.preHandlerGripMiddleware);
+ 
+app.all('/websocket', function(req, res, next) {
+    // Reject non-WebSocket requests
+    if (!expressGrip.verifyIsWebSocket(res, next)) {
+        return;
+    } else {
+		console.log("hi");
+	}
+ 
+    var ws = expressGrip.getWsContext(res);
+ 
+    // If this is a new connection, accept it and subscribe it to a channel
+    if (ws.isOpening()) {
+        ws.accept();
+        ws.subscribe('all');
+    }
+ 
+    while (ws.canRecv()) {
+        var message = ws.recv();
+ 
+        // If return value is null then connection is closed
+        if (message == null) {
+            ws.close();
+            break;
+        }
+ 
+        // Echo the message
+        ws.send(message);
+    }
+ 
+    // next() must be called for the post-handler middleware to execute
+    next();
+});
+ 
+app.post('/broadcast', bodyParser.text({
+    type: '*/*'
+}), function(req, res, next) {
+    // Publish data to all clients that are connected to the echo endpoint
+    var data = req.body;
+    expressGrip.publish('all', new grip.WebSocketMessageFormat(data));
+    res.send('Ok\n');
+ 
+    // next() must be called for the post-handler middleware to execute
+    next();
+});
+ 
+// Add the post-handler middleware to the back of the stack
+app.use(expressGrip.postHandlerGripMiddleware);
+ 
+var server = app.listen(8887, function () {
+  var host = server.address().address;
+  var port = server.address().port;
+  console.log('Example app listening at http://%s:%s', host, port);
+});
