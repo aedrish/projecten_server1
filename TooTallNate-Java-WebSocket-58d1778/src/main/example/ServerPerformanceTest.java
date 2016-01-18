@@ -1,3 +1,4 @@
+import java.awt.GridLayout;
 import java.io.BufferedReader;
 import java.io.Console;
 import java.io.IOException;
@@ -6,6 +7,13 @@ import java.net.InetSocketAddress;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.logging.Logger;
+
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JSlider;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 
 import org.java_websocket.WebSocket;
 import org.java_websocket.WebSocketImpl;
@@ -22,18 +30,18 @@ public class ServerPerformanceTest extends WebSocketServer {
 	}
 
 	public ServerPerformanceTest( InetSocketAddress address ) {
-		super( address );
+		super( address, 4 );
 	}
 
 	@Override
 	public void onOpen(WebSocket conn, ClientHandshake handshake) {
-		System.out.println("Client has connected, " + connections().size() + " clients connected");
+		System.out.println("Client hassss connected, " + connections().size() + " clients connected");
 		
 	}
 
 	@Override
 	public void onClose(WebSocket conn, int code, String reason, boolean remote) {
-		System.out.println("Client has disconnected, " + connections().size() + " clients are connected");
+		System.out.println("Client hassss disconnected, " + connections().size() + " clients are connected");
 		
 	}
 
@@ -52,8 +60,55 @@ public class ServerPerformanceTest extends WebSocketServer {
 		
 	}
 	
+//	public static class RamMonitor extends JFrame {
+//
+//		private JSlider rms;
+//		private JLabel rmsl = new JLabel();
+//		
+//		public RamMonitor() {
+//			setTitle("ramMonitor");
+//			setDefaultCloseOperation(EXIT_ON_CLOSE);
+//			setSize(300, 300);
+//			rms = new JSlider(0, 16000000);
+//			rms.addChangeListener(new ChangeListener() {
+//				
+//				@Override
+//				public void stateChanged(ChangeEvent e) {
+//					rmsl.setText("ram usage: " + rms.getValue());
+//				}
+//			});
+//			setLayout(new GridLayout(2, 1, 10, 10));
+//			add(rmsl);
+//			add(rms);
+//			setVisible(true);
+//			Thread thread = new Thread(new Runnable() {
+//				
+//				@Override
+//				public void run() {
+//					while(true) {
+//						runThread();
+//					}
+//				}
+//			});
+//			thread.start();
+//			System.out.println("test");
+//		}
+//		
+//		public void runThread() {
+//			Runtime rt = Runtime.getRuntime();
+//			long usedMB = (rt.totalMemory() - rt.freeMemory()) / 1024;
+////			System.out.println("used: + " + usedMB);
+//			rms.setValue((int) usedMB);
+//		}
+//	}
+	
 	public static void main( String[] args ) throws InterruptedException , IOException {
 		WebSocketImpl.DEBUG = true;
+
+
+//		RamMonitor rm = new RamMonitor();
+//		rm.setVisible(true);
+//		rm.setVisible();
 		int port = 8887;
 		try {
 			port = Integer.parseInt( args[ 0 ] );
