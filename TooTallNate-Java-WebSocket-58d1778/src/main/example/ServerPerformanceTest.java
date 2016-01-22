@@ -5,8 +5,10 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.InetSocketAddress;
 import java.net.UnknownHostException;
+import java.nio.channels.ShutdownChannelGroupException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Timer;
 import java.util.logging.Logger;
 
 import javax.swing.JFrame;
@@ -20,6 +22,9 @@ import org.java_websocket.WebSocketImpl;
 import org.java_websocket.framing.Framedata;
 import org.java_websocket.handshake.ClientHandshake;
 import org.java_websocket.server.WebSocketServer;
+
+import java.util.Timer;
+import java.util.TimerTask;
 /**
  * A simple WebSocketServer implementation. Keeps track of a "chat room".
  */
@@ -35,13 +40,13 @@ public class ServerPerformanceTest extends WebSocketServer {
 
 	@Override
 	public void onOpen(WebSocket conn, ClientHandshake handshake) {
-		System.out.println("Client hassss connected, " + connections().size() + " clients connected");
+//		System.out.println("Client hassss connected, " + connections().size() + " clients connected");
 		
 	}
 
 	@Override
 	public void onClose(WebSocket conn, int code, String reason, boolean remote) {
-		System.out.println("Client hassss disconnected, " + connections().size() + " clients are connected");
+//		System.out.println("Client hassss disconnected, " + connections().size() + " clients are connected");
 		
 	}
 
@@ -102,13 +107,29 @@ public class ServerPerformanceTest extends WebSocketServer {
 //		}
 //	}
 	
+	public static void showRamUsage() {
+		Runtime runtime = Runtime.getRuntime();
+		System.out.println("Free Memmory: " + (runtime.freeMemory() /1024 / 1024) + "MB");
+		System.out.println("Total Memmory: " + (runtime.totalMemory() / 1024 / 1024) + "MB");
+		System.out.println("used Memmory: " + ((runtime.totalMemory() - runtime.freeMemory()) /1024 /1024) + "MB");
+		
+	}
+	
 	public static void main( String[] args ) throws InterruptedException , IOException {
-		WebSocketImpl.DEBUG = true;
+		WebSocketImpl.DEBUG = false;
 
 
 //		RamMonitor rm = new RamMonitor();
 //		rm.setVisible(true);
 //		rm.setVisible();
+		Timer timer = new Timer(true);
+		timer.scheduleAtFixedRate(new TimerTask() {
+			@Override
+			public void run() {
+				showRamUsage();
+			}
+		}, 0, 250);
+		
 		int port = 8887;
 		try {
 			port = Integer.parseInt( args[ 0 ] );
